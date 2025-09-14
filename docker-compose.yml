@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: turkticaret-app
+    container_name: turkticaret-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - turkticaret
+    depends_on:
+      - db
+      - redis
+
+  nginx:
+    image: nginx:alpine
+    container_name: turkticaret-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - turkticaret
+    depends_on:
+      - app
+
+  db:
+    image: postgres:13
+    container_name: turkticaret-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: turkticaret
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - turkticaret
+
+  redis:
+    image: redis:alpine
+    container_name: turkticaret-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - turkticaret
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: turkticaret-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 5432
+      PMA_USER: postgres
+      PMA_PASSWORD: password
+    ports:
+      - "8080:80"
+    networks:
+      - turkticaret
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  turkticaret:
+    driver: bridge
