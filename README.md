@@ -61,7 +61,7 @@ Laravel 9 ve PostgreSQL kullanılarak geliştirilmiş RESTful e-ticaret API'si.
 
 ### 1. Projeyi klonlayın
 ```bash
-git clone <repository-url>
+git clone <[repository-url](https://github.com/ferhatgol/Turkticaret-API-Laravel)>
 cd turkticaret
 ```
 
